@@ -1,0 +1,35 @@
+name: Feed API
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    name: Build app distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "12"
+
+      - name: NPM cmds
+        run: |
+          npm install
+          npm run build ./udagram-frontend/package.json
+        working-directory: ./api/feed-service
+
+      - uses: actions/checkout@v2
+
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+
+      - name: Build the Docker image
+        run: docker build --rm -f "Dockerfile" -t byblix/project3_feed-api:latest .
+        working-directory: ./api/feed-service
+
+      - name: Push the Docker image to the registry
+        run: docker push byblix/project3_feed-api:latest

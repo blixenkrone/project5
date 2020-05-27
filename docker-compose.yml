@@ -1,0 +1,40 @@
+version: "3.7"
+
+services:
+  feed-api:
+    build:
+      context: ./api/feed-service
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    env_file: .env
+
+  users-api:
+    build:
+      context: ./api/users-service
+      dockerfile: Dockerfile
+    ports:
+      - 8081:8081
+    env_file: .env
+
+  frontend:
+    build:
+      context: ./udagram-frontend
+      dockerfile: Dockerfile
+    ports:
+      - 8100:8100
+    # volumes:
+    #   - ./udagram-frontend/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - feed-api
+      - users-api
+# #for testing postgres locally because AWS didn't give me their free-tier access to their RDB service.
+#   postgres:
+#     image: postgres:latest
+#     restart: always
+#     environment:
+#       POSTGRES_PASSWORD: example
+#       POSTGRES_USER: postgres
+#       POSTGRES_DB: postgres
+#     ports:
+#       - 5432:5432
